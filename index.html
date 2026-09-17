@@ -275,6 +275,85 @@
   footer.site{ padding: 36px 0; border-top: 1px solid var(--line); }
   footer.site .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap: 14px; }
   footer.site p{ color: var(--ink-faint); font-size: 13px; margin:0; }
+
+  /* ---------- BOOKING MODAL ---------- */
+  dialog.booking{
+    width: min(660px, calc(100vw - 32px));
+    max-height: min(88vh, 900px);
+    padding: 0; border: 1px solid var(--line); border-radius: 22px;
+    background: #22041B; color: var(--ink);
+    box-shadow: 0 40px 90px rgba(0,0,0,0.55);
+    overflow: hidden;
+  }
+  dialog.booking::backdrop{ background: rgba(9,0,7,0.74); backdrop-filter: blur(6px); }
+  dialog.booking[open]{ animation: pop .28s cubic-bezier(.2,.7,.2,1); }
+  @keyframes pop{ from{ opacity:0; transform: translateY(14px) scale(.985); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ dialog.booking[open]{ animation:none; } }
+
+  .booking-inner{ display:flex; flex-direction:column; max-height: inherit; }
+  .booking-head{
+    flex: 0 0 auto; position:relative;
+    padding: 26px 30px 20px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(120deg, rgba(232,20,111,0.22), rgba(62,10,44,0.25));
+  }
+  .booking-head h2{ font-family: var(--display); font-weight:800; font-size: 22px; margin: 0 0 8px; padding-right: 44px; }
+  .booking-head p{ margin:0; color: var(--ink-dim); font-size: 14px; max-width: 470px; }
+  .booking-close{
+    position:absolute; top: 18px; right: 20px;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.06);
+    color: var(--ink); font-size: 15px; line-height: 1; cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .booking-close:hover{ background: rgba(255,255,255,0.14); border-color: var(--gold); }
+
+  .booking-body{ padding: 26px 30px 30px; overflow-y: auto; }
+  @media (max-width:560px){
+    dialog.booking{ width:100vw; max-width:100vw; height:100%; max-height:100%; border-radius:0; border:none; }
+    .booking-head{ padding: 22px 20px 18px; }
+    .booking-body{ padding: 22px 20px 30px; }
+  }
+
+  .field-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width:560px){ .field-grid{ grid-template-columns:1fr; } }
+  .field{ display:flex; flex-direction:column; gap: 7px; }
+  .field.full{ grid-column: 1 / -1; }
+  .field label{ font-size: 13px; font-weight: 600; color: var(--ink-dim); }
+  .field label .req{ color: var(--hot-2); }
+  .field input, .field select, .field textarea{
+    font-family: var(--sans); font-size: 15px; color: var(--ink);
+    background: rgba(255,255,255,0.06); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; width: 100%;
+    transition: border-color .2s ease, background .2s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  .field textarea{ min-height: 104px; resize: vertical; }
+  .field select{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23FF3D8A' stroke-width='2' d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 11px;
+    padding-right: 38px; cursor: pointer;
+  }
+  .field select option{ background: #22041B; color: var(--ink); }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline: none; border-color: var(--hot-2); background: rgba(255,255,255,0.09);
+  }
+  .field input::placeholder, .field textarea::placeholder{ color: var(--ink-faint); }
+
+  .consent{ display:flex; gap: 11px; align-items:flex-start; margin-top: 20px; }
+  .consent input{ flex: 0 0 auto; width: 17px; height: 17px; margin-top: 2px; accent-color: var(--hot); }
+  .consent label{ font-size: 13px; color: var(--ink-faint); line-height: 1.5; }
+
+  .booking-submit{ margin-top: 24px; width: 100%; justify-content: center; border: none; cursor: pointer; font-family: var(--sans); }
+  .booking-note{ margin: 14px 0 0; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
+
+  .booking-done{ text-align: center; padding: 14px 0 8px; }
+  .booking-done .tick{
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 18px;
+    display:flex; align-items:center; justify-content:center; font-size: 25px;
+    background: linear-gradient(150deg, var(--hot), var(--magenta));
+  }
+  .booking-done h3{ font-family: var(--display); font-weight: 700; font-size: 20px; margin: 0 0 10px; }
+  .booking-done p{ color: var(--ink-dim); font-size: 14.5px; margin: 0 auto 22px; max-width: 390px; }
 </style>
 </head>
 <body>
@@ -296,7 +375,7 @@
       <a href="#resultats">Résultats</a>
       <a href="#contact">Contact</a>
     </nav>
-    <a class="nav-cta" href="#contact">Prendre rendez-vous</a>
+    <a class="nav-cta" href="#contact" data-booking>Prendre rendez-vous</a>
   </div>
   <details class="mobile-menu">
     <summary class="mobile-toggle wrap">Menu</summary>
@@ -304,7 +383,7 @@
       <a href="#approche">Approche</a>
       <a href="#methode">Méthode</a>
       <a href="#resultats">Résultats</a>
-      <a href="#contact">Prendre rendez-vous</a>
+      <a href="#contact" data-booking>Prendre rendez-vous</a>
     </div>
   </details>
 </header>
@@ -319,7 +398,7 @@
       </h1>
       <p class="lede">Il est temps de sortir de la routine managériale, de renforcer la posture de vos leaders et de construire l'organisation que vous avez toujours voulu diriger.</p>
       <div class="cta-row">
-        <a class="btn-primary" href="#contact">Réserver mon diagnostic</a>
+        <a class="btn-primary" href="#contact" data-booking>Réserver mon diagnostic</a>
         <a class="btn-ghost" href="https://wa.me/22383818708" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
       </div>
     </div>
@@ -446,7 +525,8 @@
       <h3>Discutons de votre situation</h3>
       <p>Vingt minutes suffisent pour évaluer, sans engagement, ce qui freine réellement vos équipes aujourd'hui.</p>
       <div class="cta-row" style="margin-bottom:0;">
-        <a class="btn-primary" href="https://wa.me/22383818708" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+        <a class="btn-primary" href="#contact" data-booking>Réserver mon diagnostic</a>
+        <a class="btn-ghost" href="https://wa.me/22383818708" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
       </div>
     </div>
   </div>
@@ -469,7 +549,7 @@
     <h2>Le premier pas ne coûte rien.<br>L'inaction, si.</h2>
     <p>Réservez un échange de 20 minutes pour évaluer, sans engagement, ce qui freine réellement vos équipes.</p>
     <div class="cta-row">
-      <a class="btn-primary" href="#contact">Réserver un diagnostic</a>
+      <a class="btn-primary" href="#contact" data-booking>Réserver un diagnostic</a>
       <a class="btn-ghost" href="https://wa.me/22383818708" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
     </div>
   </div>
@@ -481,6 +561,169 @@
     <p>© 2026</p>
   </div>
 </footer>
+
+
+<dialog class="booking" id="booking" aria-labelledby="booking-title">
+  <div class="booking-inner">
+    <div class="booking-head">
+      <h2 id="booking-title">Réserver votre diagnostic</h2>
+      <p>Vingt minutes, sans engagement. Quelques champs suffisent : votre demande part sur WhatsApp, déjà rédigée.</p>
+      <button type="button" class="booking-close" data-booking-close aria-label="Fermer la fenêtre">&#10005;</button>
+    </div>
+
+    <div class="booking-body">
+      <form id="booking-form">
+        <div class="field-grid">
+          <div class="field">
+            <label for="f-nom">Nom complet <span class="req">*</span></label>
+            <input id="f-nom" name="nom" type="text" required autocomplete="name" placeholder="Votre nom et prénom">
+          </div>
+          <div class="field">
+            <label for="f-fonction">Fonction</label>
+            <input id="f-fonction" name="fonction" type="text" autocomplete="organization-title" placeholder="Dirigeante, DRH, manager…">
+          </div>
+          <div class="field">
+            <label for="f-organisation">Organisation</label>
+            <input id="f-organisation" name="organisation" type="text" autocomplete="organization" placeholder="Nom de votre structure">
+          </div>
+          <div class="field">
+            <label for="f-taille">Taille de l'équipe <span class="req">*</span></label>
+            <select id="f-taille" name="taille" required>
+              <option value="" selected disabled>Sélectionner…</option>
+              <option>Moins de 5 personnes</option>
+              <option>5 à 20 personnes</option>
+              <option>20 à 50 personnes</option>
+              <option>50 à 200 personnes</option>
+              <option>Plus de 200 personnes</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="f-objectif">Objectif principal <span class="req">*</span></label>
+            <select id="f-objectif" name="objectif" required>
+              <option value="" selected disabled>Sélectionner…</option>
+              <option>Renforcer la posture des managers</option>
+              <option>Cohésion et performance de l'équipe</option>
+              <option>Conduite du changement</option>
+              <option>Structurer l'organisation</option>
+              <option>Coaching individuel de dirigeant·e</option>
+              <option>Autre — à préciser ci-dessous</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.com">
+          </div>
+          <div class="field">
+            <label for="f-telephone">Téléphone</label>
+            <input id="f-telephone" name="telephone" type="tel" autocomplete="tel" placeholder="+223 …">
+          </div>
+          <div class="field full">
+            <label for="f-dispo">Disponibilité préférée <span class="req">*</span></label>
+            <select id="f-dispo" name="dispo" required>
+              <option value="" selected disabled>Sélectionner…</option>
+              <option>Matin (8h – 12h)</option>
+              <option>Après-midi (12h – 17h)</option>
+              <option>Soirée (17h – 20h)</option>
+              <option>Peu importe</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="f-contexte">Votre contexte en quelques mots</label>
+            <textarea id="f-contexte" name="contexte" placeholder="Ce qui bloque aujourd'hui, ce que vous aimeriez changer…"></textarea>
+          </div>
+        </div>
+
+        <div class="consent">
+          <input id="f-consent" name="consent" type="checkbox" required>
+          <label for="f-consent">J'accepte d'être recontacté·e sur WhatsApp au sujet de cette demande.</label>
+        </div>
+
+        <button type="submit" class="btn-primary booking-submit">Envoyer sur WhatsApp</button>
+        <p class="booking-note">WhatsApp s'ouvre avec votre message déjà écrit — il ne reste qu'à l'envoyer.</p>
+      </form>
+
+      <div class="booking-done" id="booking-done" hidden>
+        <div class="tick" aria-hidden="true">&#10003;</div>
+        <h3>Votre message est prêt</h3>
+        <p>WhatsApp devrait s'ouvrir dans un nouvel onglet. Si rien ne se passe, ouvrez-le avec le bouton ci-dessous.</p>
+        <a class="btn-primary" id="booking-fallback" href="#" target="_blank" rel="noopener">Ouvrir WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var WHATSAPP_NUMBER = '22383818708';
+
+  var dlg = document.getElementById('booking');
+  var form = document.getElementById('booking-form');
+  var done = document.getElementById('booking-done');
+  var fallback = document.getElementById('booking-fallback');
+
+  // Sans <dialog>, les liens gardent leur comportement d'ancre vers #contact.
+  if (!dlg || !form || typeof dlg.showModal !== 'function') return;
+
+  function openModal(e) {
+    if (e) e.preventDefault();
+    form.hidden = false;
+    done.hidden = true;
+    dlg.showModal();
+    document.body.style.overflow = 'hidden';
+    if (window.matchMedia('(min-width: 561px)').matches) {
+      var first = form.querySelector('input, select, textarea');
+      if (first) first.focus();
+    }
+  }
+
+  function closeModal() { dlg.close(); }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-booking]'), function (el) {
+    el.addEventListener('click', openModal);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-booking-close]'), function (el) {
+    el.addEventListener('click', closeModal);
+  });
+
+  dlg.addEventListener('close', function () { document.body.style.overflow = ''; });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) closeModal(); });
+
+  function line(label, value) {
+    return value ? '\n• ' + label + ' : ' + value : '';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    var data = new FormData(form);
+    var get = function (key) { return (data.get(key) || '').toString().trim(); };
+
+    var msg = 'Bonjour Mariam, je souhaite réserver un diagnostic de 20 minutes.\n';
+    msg += line('Nom', get('nom'));
+    msg += line('Fonction', get('fonction'));
+    msg += line('Organisation', get('organisation'));
+    msg += line('Taille de l\'équipe', get('taille'));
+    msg += line('Objectif principal', get('objectif'));
+    msg += line('Disponibilité', get('dispo'));
+    msg += line('Email', get('email'));
+    msg += line('Téléphone', get('telephone'));
+
+    var contexte = get('contexte');
+    if (contexte) msg += '\n\nContexte :\n' + contexte;
+    msg += '\n\n— Demande envoyée depuis le site';
+
+    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+
+    fallback.href = url;
+    form.hidden = true;
+    done.hidden = false;
+
+    var win = window.open(url, '_blank', 'noopener');
+    if (!win) window.location.href = url;
+  });
+})();
+</script>
 
 </body>
 </html>

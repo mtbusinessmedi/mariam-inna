@@ -19,14 +19,29 @@ Page unique `index.html`, entièrement autonome :
 - Détail de l'offre
 - FAQ
 - Section de conversion finale
+- Fenêtre de réservation (formulaire → WhatsApp)
+
+## Réservation
+
+Tous les boutons « Prendre rendez-vous » / « Réserver un diagnostic » ouvrent une
+fenêtre modale contenant le formulaire de réservation. À l'envoi, les réponses sont
+mises en forme et WhatsApp s'ouvre avec le message déjà rédigé — il ne reste qu'à
+l'envoyer. Aucune donnée n'est stockée ni transmise à un serveur tiers.
+
+Champs obligatoires : nom, taille de l'équipe, objectif principal, disponibilité et
+consentement. Fonction, organisation, email, téléphone et contexte sont facultatifs.
+
+Le numéro de destination est la constante `WHATSAPP_NUMBER` en bas de `index.html`.
 
 ## Technique
 
-- HTML + CSS uniquement, aucun script, aucune dépendance de build
+- HTML, CSS et un seul script inline — aucune dépendance de build
 - Images intégrées en base64 — le fichier fonctionne hors ligne
 - Polices Sora et Inter chargées depuis Google Fonts
 - Responsive (points de rupture à 900px, 780px et 640px)
 - Respecte `prefers-reduced-motion`
+- Modale native `<dialog>` : fermeture par Échap, clic hors zone ou croix. Sans
+  JavaScript, les boutons redirigent simplement vers la section contact.
 
 ## Développement
 
