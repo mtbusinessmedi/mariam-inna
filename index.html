@@ -473,7 +473,61 @@
     .mobile-bar{ padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
     .mobile-bar .btn-primary{ padding: 15px 12px; font-size: 14px; }
   }
+
+  /* ---------- ANIMATIONS ---------- */
+  /* Tout ce bloc s'annule si le visiteur a demandé moins d'animations. */
+  @media (prefers-reduced-motion: no-preference){
+
+    /* Apparition au défilement. :where() garde une spécificité nulle
+       pour que .is-in reprenne la main sans avoir à surenchérir. */
+    .js :where(
+      .section-head, .manifesto p.pull, .pillar-card, .step, .stat,
+      .checklist-panel h2, .check-item, .testimonial blockquote, .testimonial cite,
+      .about-grid > *, .offer .section-title, .offer-steps li, .offer-cta,
+      .faq-list details.q, .final h2, .final p, .final .cta-row
+    ){
+      opacity: 0; transform: translateY(18px);
+      transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
+    }
+    .js .is-in{ opacity: 1; transform: none; }
+
+    /* Cartes survolables : une seule déclaration de transition, sinon
+       celle de l'apparition serait écrasée. Le survol utilise translate,
+       propriété distincte de transform, pour ne pas entrer en conflit. */
+    .step, .offer-cta{
+      transition: opacity .7s cubic-bezier(.2,.7,.2,1),
+                  transform .7s cubic-bezier(.2,.7,.2,1),
+                  translate .35s cubic-bezier(.2,.7,.2,1),
+                  border-color .3s ease, box-shadow .3s ease;
+    }
+
+    /* Respiration très lente de la photo du héros */
+    .hero-photo img{ transform-origin: 56% 40%; animation: slow-zoom 26s ease-in-out infinite alternate; }
+    @keyframes slow-zoom{ from{ transform: scale(1); } to{ transform: scale(1.07); } }
+
+    /* Flottement léger de la carte posée sur la photo */
+    .float-card{ animation: drift 7s ease-in-out infinite alternate; }
+    @keyframes drift{ from{ transform: translateY(0); } to{ transform: translateY(-9px); } }
+
+    /* Ouverture douce des questions fréquentes */
+    .js details.q[open] p{ animation: faq-in .38s cubic-bezier(.2,.7,.2,1); }
+    @keyframes faq-in{ from{ opacity: 0; transform: translateY(-6px); } to{ opacity: 1; transform: none; } }
+  }
+
+  /* Survol : uniquement pour une vraie souris, jamais au doigt */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine){
+    .step:hover, .offer-cta:hover{
+      translate: 0 -5px;
+      border-color: rgba(240,185,74,0.38);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.32);
+    }
+    .pillar-badge{ transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s ease; }
+    .pillar-card:hover .pillar-badge{ transform: scale(1.07) rotate(-4deg); box-shadow: 0 18px 36px rgba(232,20,111,0.45); }
+    .about-photo img{ transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+    .about-photo:hover img{ transform: scale(1.05); }
+  }
 </style>
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -862,6 +916,85 @@
     var win = window.open(url, '_blank', 'noopener');
     if (!win) window.location.href = url;
   });
+})();
+
+(function () {
+  var root = document.documentElement;
+  if (!root.classList.contains('js')) return;
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var items = document.querySelectorAll([
+    '.section-head', '.manifesto p.pull', '.pillar-card', '.step', '.stat',
+    '.checklist-panel h2', '.check-item', '.testimonial blockquote', '.testimonial cite',
+    '.about-grid > *', '.offer .section-title', '.offer-steps li', '.offer-cta',
+    '.faq-list details.q', '.final h2', '.final p', '.final .cta-row'
+  ].join(','));
+
+  // Décalage en cascade à l'intérieur de chaque groupe
+  [['.pillar-grid > *', 110], ['.method-grid > *', 90], ['.stats-row > *', 110],
+   ['.check-item', 60], ['.offer-steps li', 90], ['.faq-list details.q', 70]
+  ].forEach(function (group) {
+    Array.prototype.forEach.call(document.querySelectorAll(group[0]), function (el, i) {
+      el.style.transitionDelay = (i * group[1]) + 'ms';
+    });
+  });
+
+  function countUp(el) {
+    var parts = el.textContent.trim().match(/^([\d.,]+)(.*)$/);
+    if (!parts) return;
+    var target = parseFloat(parts[1].replace(',', '.'));
+    var suffix = parts[2];
+    if (!target) return; // le « 0 » de « 0 programme standard » reste tel quel
+
+    var duration = 1500, start = null;
+    el.textContent = '0' + suffix;
+    requestAnimationFrame(function step(now) {
+      if (start === null) start = now;
+      var p = Math.min((now - start) / duration, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    });
+  }
+
+  function reveal(el) {
+    el.classList.add('is-in');
+
+    // Le décalage ne doit pas survivre à l'apparition, sinon il
+    // retarderait aussi les effets de survol.
+    el.addEventListener('transitionend', function clear() {
+      el.style.transitionDelay = '';
+      el.removeEventListener('transitionend', clear);
+    });
+
+    if (el.classList.contains('stat')) {
+      var big = el.querySelector('.big');
+      if (big) countUp(big);
+    }
+  }
+
+  if (reduce || !('IntersectionObserver' in window)) {
+    Array.prototype.forEach.call(items, function (el) { el.classList.add('is-in'); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      reveal(entry.target);
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+  Array.prototype.forEach.call(items, function (el) { observer.observe(el); });
+
+  // Filet de sécurité : si l'observateur n'a toujours rien livré au bout de
+  // 3 s (onglet resté en arrière-plan, API bridée...), on affiche tout.
+  // Le contenu ne peut jamais rester invisible à cause de l'animation.
+  setTimeout(function () {
+    if (document.querySelector('.is-in')) return;
+    Array.prototype.forEach.call(items, function (el) { el.classList.add('is-in'); });
+  }, 3000);
 })();
 </script>
 

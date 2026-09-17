@@ -44,6 +44,25 @@ Le numéro de destination est la constante `WHATSAPP_NUMBER` en bas de `index.ht
 - Modale native `<dialog>` : fermeture par Échap, clic hors zone ou croix. Sans
   JavaScript, les boutons redirigent simplement vers la section contact.
 
+## Animations
+
+Volontairement peu nombreuses, sur les éléments qui les méritent :
+
+- apparition en fondu et glissement des blocs à l'entrée dans l'écran, en
+  cascade à l'intérieur des groupes (piliers, étapes, chiffres, questions)
+- compteurs animés sur les deux chiffres clés ; le « 0 » rhétorique est ignoré
+- zoom très lent et continu sur la photo du héros, flottement de la carte posée
+  dessus
+- ouverture en fondu des questions fréquentes
+- au survol seulement (souris, jamais au doigt) : cartes qui se soulèvent,
+  pastilles des piliers qui pivotent, photo « À propos » qui s'agrandit
+
+Tout le bloc est enfermé dans `@media (prefers-reduced-motion: no-preference)` :
+un visiteur qui a réduit les animations dans son système voit la page fixe.
+Sans JavaScript, rien n'est masqué (la classe `js` conditionne l'état initial),
+et un filet de sécurité affiche tout au bout de 3 s si l'observateur ne répond
+pas.
+
 ## Mobile
 
 - Menu hamburger dans l'en-tête, panneau déroulant plein écran, liens de 48px
