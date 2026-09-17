@@ -38,10 +38,20 @@ Le numéro de destination est la constante `WHATSAPP_NUMBER` en bas de `index.ht
 - HTML, CSS et un seul script inline — aucune dépendance de build
 - Images intégrées en base64 — le fichier fonctionne hors ligne
 - Polices Sora et Inter chargées depuis Google Fonts
-- Responsive (points de rupture à 900px, 780px et 640px)
+- Responsive, optimisé mobile en priorité (points de rupture à 900px, 780px,
+  640px, 560px et 380px) — testé de 320px à 1280px
 - Respecte `prefers-reduced-motion`
 - Modale native `<dialog>` : fermeture par Échap, clic hors zone ou croix. Sans
   JavaScript, les boutons redirigent simplement vers la section contact.
+
+## Mobile
+
+- Menu hamburger dans l'en-tête, panneau déroulant plein écran, liens de 48px
+- Barre d'action fixe en bas d'écran (réserver + WhatsApp), masquée au-dessus de 780px
+- Champs de formulaire à 16px pour empêcher le zoom automatique de Safari iOS
+- `env(safe-area-inset-bottom)` pris en compte pour les iPhone à encoche
+- `scroll-margin-top` sur les sections pour que les ancres ne passent pas sous
+  l'en-tête collant
 
 ## Développement
 
